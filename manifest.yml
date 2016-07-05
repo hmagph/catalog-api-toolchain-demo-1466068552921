@@ -2,11 +2,8 @@
 applications:
 - services:
   - myMicroservicesCloudant
+    myMicroserviceDiscovery
   name: MicroservicesCatalogAPI
   memory: 96m
   instances: 1
   path: .
-declared-services:
-  myMicroservicesCloudant:
-    label: cloudantNoSQLDB
-    plan: Shared
