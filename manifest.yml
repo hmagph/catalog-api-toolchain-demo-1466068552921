@@ -2,7 +2,7 @@
 applications:
 - services:
   - myMicroservicesCloudant
-    myMicroserviceDiscovery
+  - myMicroserviceDiscovery
   name: MicroservicesCatalogAPI
   memory: 96m
   instances: 1
