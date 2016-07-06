@@ -12,7 +12,7 @@ var appEnv = cfenv.getAppEnv();
 cloudantService = appEnv.getService("myMicroservicesCloudant");
 var items = require('./routes/items');
 
-console.log("vcap:", appEnv);
+console.log("VCAP: " + JSON.stringify(appEnv));
 
 //Setup Service Discovery
 var serviceDiscovery = appEnv.getService("myMicroserviceDiscovery");
