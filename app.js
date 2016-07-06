@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 var cfenv = require("cfenv");
 var path = require('path');
 var cors = require('cors');
-var http = require('http');
+var ServiceDiscovery = require('bluemix-service-discovery');
 
 //Setup Cloudant Service.
 var appEnv = cfenv.getAppEnv();
@@ -15,22 +15,33 @@ var items = require('./routes/items');
 console.log("VCAP: " + JSON.stringify(appEnv));
 
 //Setup Service Discovery
-var serviceDiscovery = appEnv.getService("myMicroserviceDiscovery");
-var options = {
-  "host": serviceDiscovery.credentials.url,
-  "port": 443,
-  "path": "/api/v1/instances",
-  "postData": "{ 'tags' :[] , 'status' :'UP' , 'service_name' :'catalog-api' , 'ttl' :'300' , 'endpoint' : { 'value' :'xxx.xxx.xxx.xx' , 'type' :'http' } }",
-  method: "POST"
-};
-http.request(options, function(res) {
-  console.log("STATUS: " + res.statusCode);
-  console.log("HEADERS: " + JSON.stringify(res.headers));
-  res.setEncoding("utf8");
-  res.on("data", function (chunk) {
-    console.log("BODY: " + chunk);
-  });
-}).end();
+var sdEnv = appEnv.getService("myMicroserviceDiscovery");
+var discovery = new ServiceDiscovery({
+  name: 'ServiceDiscovery',
+  auth_token: sdEnv.credentials.auth_token,
+  url: sdEnv.credentials.url,
+  version: 1
+});
+discovery.register({
+  "service_name": "catalog_api",
+  "ttl": 0,
+  "endpoint": {
+    "host": appEnv.url,
+    "port": 443
+  },
+  "metadata": {}
+}, function(error, response, service) {
+  if (!error) {
+    var intervalId = setInterval(function() {
+      discovery.renew(service.id, function(error, response, service) {
+        if (error || response.statusCode !== 200) {
+          console.log('Could not send heartbeat');
+          clearInterval(intervalId);
+        }
+      });
+    }, 1000);
+  }
+});
 
 //Setup Middleware.
 var app = express();
