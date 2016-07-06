@@ -4,7 +4,7 @@ var bodyParser = require('body-parser');
 var cfenv = require("cfenv");
 var path = require('path');
 var cors = require('cors');
-var ServiceDiscovery = require('bluemix-service-discovery');
+var discovery = require('bluemix-service-discovery');
 
 //Setup Cloudant Service.
 var appEnv = cfenv.getAppEnv();
@@ -14,11 +14,11 @@ var items = require('./routes/items');
 console.log("VCAP: " + JSON.stringify(appEnv));
 
 //Setup Service Discovery
-var sdEnv = appEnv.getService("myMicroserviceDiscovery");
-discoveryService = new ServiceDiscovery({
+var sdcreds = appEnv.getService("myMicroserviceDiscovery").credentials;
+discoveryService = new discovery({
   name: 'ServiceDiscovery',
-  auth_token: sdEnv.credentials.auth_token,
-  url: sdEnv.credentials.url,
+  auth_token: sdcreds.auth_token,
+  url: sdcreds.url,
   version: 1
 });
 discoveryService.register({
@@ -26,7 +26,7 @@ discoveryService.register({
   "ttl": 0,
   "endpoint": {
     "host": appEnv.url,
-    "port": 443
+    "port": appEnv.port
   },
   "metadata": {}
 }, function(error, response, service) {
