@@ -14,7 +14,7 @@ var items = require('./routes/items');
 console.log("VCAP: " + JSON.stringify(appEnv));
 
 //Setup Service Discovery
-var sdcreds = appEnv.getService("myMicroserviceDiscovery").credentials;
+var sdcreds = appEnv.getService("myMicroservicesDiscovery").credentials;
 discoveryService = new discovery({
   name: 'ServiceDiscovery',
   auth_token: sdcreds.auth_token,
