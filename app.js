@@ -1,4 +1,3 @@
-/*globals cloudantService:true */
 /*eslint-env node, express*/
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -16,13 +15,13 @@ console.log("VCAP: " + JSON.stringify(appEnv));
 
 //Setup Service Discovery
 var sdEnv = appEnv.getService("myMicroserviceDiscovery");
-var discovery = new ServiceDiscovery({
+discoveryService = new ServiceDiscovery({
   name: 'ServiceDiscovery',
   auth_token: sdEnv.credentials.auth_token,
   url: sdEnv.credentials.url,
   version: 1
 });
-discovery.register({
+discoveryService.register({
   "service_name": "catalog_api",
   "ttl": 0,
   "endpoint": {
@@ -33,7 +32,7 @@ discovery.register({
 }, function(error, response, service) {
   if (!error) {
     var intervalId = setInterval(function() {
-      discovery.renew(service.id, function(error, response, service) {
+      discoveryService.renew(service.id, function(error, response, service) {
         if (error || response.statusCode !== 200) {
           console.log('Could not send heartbeat');
           clearInterval(intervalId);
