@@ -37,19 +37,19 @@ console.log('App started on ' + appEnv.bind + ':' + appEnv.port);
 
 
 //Register in service discovery with heatbeat
-var sdcreds = appEnv.getService("myMicroservicesDiscovery").credentials;
+var disco = appEnv.getService("myMicroservicesDiscovery").credentials;
 request({
-    url: sdcreds.url + '/api/v1/instances',
+    url: disco.url + '/api/v1/instances',
     method: 'POST',
     headers: {
-  	  'Authorization': 'Bearer ' + sdcreds.auth_token,
-  	  'Content-Type': 'application/json'
+  	  'Authorization': 'Bearer ' + disco.auth_token //,
+  	  //'Content-Type': 'application/json'
     },
     json: true,
     body: {
       'service_name': appEnv.name,
-      'tags': [],
-      'status': 'UP',
+      //'tags': [],
+      //'status': 'UP',
       'ttl' : 300,
       'endpoint': {
       	'type': 'http',
