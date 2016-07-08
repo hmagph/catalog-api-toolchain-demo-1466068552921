@@ -81,7 +81,7 @@ discovery.register(
   	if (err) {
   		console.error(err);
   	} else {
-  		console.log("FAIL: " + response.statusCode + response.body);
+  		console.log("FAIL: " + response.statusCode + response.statusMessage);
   	}
   }
 });
