@@ -12,10 +12,14 @@ var appEnv = cfenv.getAppEnv();
 cloudantService = appEnv.getService("myMicroservicesCloudant");
 var items = require('./routes/items');
 
-console.log("VCAP: " + JSON.stringify(appEnv));
+console.log("###VCAP: " + JSON.stringify(appEnv));
 
 //Setup Service Discovery
 var sdcreds = appEnv.getService("myMicroservicesDiscovery").credentials;
+
+console.log("###SD auth token: " + sdcreds.auth_token);
+console.log("###SD url: " + sdcreds.url);
+
 discoveryService = new discovery({
   name: 'ServiceDiscovery',
   auth_token: sdcreds.auth_token,
@@ -31,6 +35,7 @@ discoveryService.register({
   },
   "metadata": {}
 }, function(error, response, service) {
+  console.log("###SERVICE ID: " + service.id);
   if (!error) {
     var intervalId = setInterval(function() {
       discoveryService.renew(service.id, function(error, response, service) {
