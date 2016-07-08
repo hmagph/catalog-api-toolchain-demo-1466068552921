@@ -36,7 +36,7 @@ app.listen(appEnv.port, appEnv.bind);
 console.log('App started on ' + appEnv.bind + ':' + appEnv.port);
 
 
-//Setup Service Discovery
+//Register in service discovery with heatbeat
 var sdcreds = appEnv.getService("myMicroservicesDiscovery").credentials;
 discovery = new ServiceDiscovery({
   name: 'ServiceDiscovery',
@@ -44,21 +44,17 @@ discovery = new ServiceDiscovery({
   url: sdcreds.url,
   version: 1
 });
-
-var service_instance = {
-  service_name: 'catalog-api',
-  ttl: 30, // 30s
-  endpoint: {
-    type: 'http',
-    value: appEnv.url
+discovery.register(
+  {
+    service_name: appEnv.name,
+    ttl: 30, // 30s
+    endpoint: {
+      type: 'http',
+      value: appEnv.url
+    },
+    metadata: {}
   },
-  metadata: {
-//    foo: 'bar'
-  }
-};
-
-// Register and then send a heartbeat (renew)
-discovery.register(service_instance, function(err, response, body) {
+  function(err, response, body) {
   if (!err && response.statusCode === 201) {
     var id = body.id;
     console.log('Registered', body);
