@@ -77,5 +77,11 @@ discovery.register(
         }
       });
     }, 3000); // 3s
+  } else {
+  	if (err) {
+  		console.log(err);
+  	} else {
+  		console.log(response);
+  	}
   }
 });
