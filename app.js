@@ -5,7 +5,7 @@ var bodyParser = require('body-parser');
 var cfenv = require("cfenv");
 var path = require('path');
 var cors = require('cors');
-var ServiceDiscovery = require('bluemix-service-discovery');
+var request = require('request');
 
 //Setup Cloudant Service.
 var appEnv = cfenv.getAppEnv();
@@ -38,50 +38,67 @@ console.log('App started on ' + appEnv.bind + ':' + appEnv.port);
 
 //Register in service discovery with heatbeat
 var sdcreds = appEnv.getService("myMicroservicesDiscovery").credentials;
-discovery = new ServiceDiscovery({
-  name: 'ServiceDiscovery',
-  auth_token: sdcreds.auth_token,
-  url: sdcreds.url,
-  version: 1
-});
-var service_instance =   {
-    service_name: appEnv.name,
-    ttl: 60, // 60s
-    endpoint: {
-      type: 'http',
-      value: appEnv.url
+request({
+    url: sdcreds.url + '/api/v1/instances',
+    method: 'POST',
+    headers: {
+  	  'Authorization': 'Bearer ' + sdcreds.auth_token,
+  	  'Content-Type': 'application/json'
     },
-    metadata: {}
-  };
-console.log("###SRV_INSTANCE: "+JSON.stringify(service_instance));
-discovery.register(
-  {
-    service_name: appEnv.name,
-    ttl: 30, // 30s
-    endpoint: {
-      type: 'http',
-      value: appEnv.url
-    },
-    metadata: {}
-  },
-  function(err, response, body) {
-  if (!err && response.statusCode === 201) {
-    var id = body.id;
-    console.log('Registered', body);
-    setInterval(function() {
-      discovery.renew(id, function(err, response) {
-        if (!err && response.statusCode === 200) {
-          console.log('HEARTBEAT OK');
-        } else {
-          console.log('HEARTBEAT ERROR');
-        }
-      });
-    }, 3000); // 3s
-  } else {
-  	if (err) {
-  		console.error(err);
-  	} else {
-  		console.log("FAIL: " + response.statusCode + response.statusMessage);
-  	}
-  }
+    json: {
+      'service_name': appEnv.name,
+      'tags': [],
+      'status': 'UP',
+      'ttl' : 300,
+      'endpoint': {
+      	'type': 'http',
+      	'value': appEnv.url
+      }    	
+    }
+  }, function(error, response, body){
+    if(error) {
+      console.log(error);
+    } else {
+      console.log("REGISTER: "+ response.statusCode, body);
+    }
 });
+
+
+//discovery = new ServiceDiscovery({
+//  name: 'ServiceDiscovery',
+//  auth_token: sdcreds.auth_token,
+//  url: sdcreds.url,
+//  version: 1
+//});
+//discovery.register(
+//  {
+//    service_name: appEnv.name,
+//    ttl: 60, // 60s
+//    endpoint: {
+//      type: 'http',
+//      value: appEnv.url
+//    },
+//    metadata: {}
+//  },
+//  function(err, response, body) {
+//  if (!err && response.statusCode === 201) {
+//    var id = body.id;
+//    console.log('Registered', body);
+//    setInterval(function() {
+//      discovery.renew(id, function(err, response) {
+//        if (!err && response.statusCode === 200) {
+//          console.log('HEARTBEAT OK');
+//        } else {
+//          console.log('HEARTBEAT ERROR');
+//        }
+//      });
+//    }, 3000); // 3s
+//  } else {
+//  	if (err) {
+//  		console.error(err);
+//  	} else {
+//  		console.log("FAIL: " + response.statusCode + response.statusMessage);
+//  		console.log(response.headers)
+//  	}
+//  }
+//});
