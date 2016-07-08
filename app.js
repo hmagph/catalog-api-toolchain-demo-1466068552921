@@ -42,11 +42,9 @@ request({
     url: disco.url + '/api/v1/instances',
     method: 'POST',
     headers: {
-  	  'Authorization': 'Bearer ' + disco.auth_token //,
-  	  //'Content-Type': 'application/json'
+  	  'Authorization': 'Bearer ' + disco.auth_token 
     },
-    json: true,
-    body: {
+    json: {
       'service_name': appEnv.name,
       //'tags': [],
       //'status': 'UP',
