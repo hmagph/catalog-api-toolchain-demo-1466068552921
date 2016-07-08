@@ -79,9 +79,9 @@ discovery.register(
     }, 3000); // 3s
   } else {
   	if (err) {
-  		console.log(err);
+  		console.error(err);
   	} else {
-  		console.log(response);
+  		console.log("FAIL: " + response.statusCode + response.body);
   	}
   }
 });
