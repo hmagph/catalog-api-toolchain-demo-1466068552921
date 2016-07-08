@@ -44,6 +44,16 @@ discovery = new ServiceDiscovery({
   url: sdcreds.url,
   version: 1
 });
+var service_instance =   {
+    service_name: appEnv.name,
+    ttl: 30, // 30s
+    endpoint: {
+      type: 'http',
+      value: appEnv.url
+    },
+    metadata: {}
+  };
+console.log("###SRV_INSTANCE: "+JSON.stringify(service_instance));
 discovery.register(
   {
     service_name: appEnv.name,
@@ -66,6 +76,6 @@ discovery.register(
           console.log('HEARTBEAT ERROR');
         }
       });
-    }, 3000);
+    }, 3000); // 3s
   }
 });
