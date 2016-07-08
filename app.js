@@ -46,7 +46,7 @@ discovery = new ServiceDiscovery({
 });
 var service_instance =   {
     service_name: appEnv.name,
-    ttl: 30, // 30s
+    ttl: 60, // 60s
     endpoint: {
       type: 'http',
       value: appEnv.url
