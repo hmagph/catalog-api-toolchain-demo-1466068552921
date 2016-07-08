@@ -45,7 +45,8 @@ request({
   	  'Authorization': 'Bearer ' + sdcreds.auth_token,
   	  'Content-Type': 'application/json'
     },
-    json: {
+    json: true,
+    body: {
       'service_name': appEnv.name,
       'tags': [],
       'status': 'UP',
