@@ -59,6 +59,25 @@ request({
       console.log(error);
     } else {
       console.log("REGISTER: "+ response.statusCode, body);
+      if (response.statusCode == 201) {
+	    console.log('Registered', body);
+	    setInterval(function() {
+	      request({
+		    url: disco.url + '/api/v1/instances/'+body.id+'/heartbeat',
+		    method: 'PUT',
+		    headers: {
+		  	  'Authorization': 'Bearer ' + disco.auth_token 
+		    },
+		    json: {}
+	      }, function(error2, response2, body2){
+		    if(error2) {
+		      console.log(error2);
+		    } else {
+		      console.log("HEARTBEAT: "+ response2.statusCode, body2);
+		    }
+	      });
+	    }, 3000); // heartbeat every 3s
+      }
     }
 });
 
