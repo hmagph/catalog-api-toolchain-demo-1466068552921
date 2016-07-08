@@ -6,6 +6,7 @@ var cfenv = require("cfenv");
 var path = require('path');
 var cors = require('cors');
 var discovery = require('bluemix-service-discovery');
+var http = require('http');
 
 //Setup Cloudant Service.
 var appEnv = cfenv.getAppEnv();
@@ -30,6 +31,7 @@ discoveryService.register({
   "service_name": "catalog_api",
   "ttl": 10,
   "endpoint": {
+  	"type": "http",
     "host": appEnv.url //,
     //"port": appEnv.port
   },
@@ -47,6 +49,25 @@ discoveryService.register({
     }, 2000);
   }
 });
+
+
+var options = {
+  "host": sdcreds.url,
+  "port": 443,
+  "path": "/api/v1/instances",
+  "postData":'{ "tags" :[] , "status" :"UP" , "service_name" :"catalog_api" , "ttl" :"300" , "endpoint" : { "value" :"'+appEnv.url+'" , "type" :"http" } }',
+  method: "POST"
+};
+
+http.request(options, function(res) {
+  console.log("STATUS: " + res.statusCode);
+  console.log("HEADERS: " + JSON.stringify(res.headers));
+  res.setEncoding("utf8");
+  res.on("data", function (chunk) {
+    console.log("BODY: " + chunk);
+  });
+}).end();
+
 
 //Setup Middleware.
 var app = express();
