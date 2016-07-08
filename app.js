@@ -1,3 +1,4 @@
+/*globals discoveryService:true cloudantService:true*/
 /*eslint-env node, express*/
 var express = require('express');
 var bodyParser = require('body-parser');
@@ -23,10 +24,10 @@ discoveryService = new discovery({
 });
 discoveryService.register({
   "service_name": "catalog_api",
-  "ttl": 0,
+  "ttl": 10,
   "endpoint": {
-    "host": appEnv.url,
-    "port": appEnv.port
+    "host": appEnv.url //,
+    //"port": appEnv.port
   },
   "metadata": {}
 }, function(error, response, service) {
@@ -38,7 +39,7 @@ discoveryService.register({
           clearInterval(intervalId);
         }
       });
-    }, 1000);
+    }, 2000);
   }
 });
 
