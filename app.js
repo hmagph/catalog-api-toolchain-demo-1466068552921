@@ -37,6 +37,7 @@ discoveryService.register({
   },
   "metadata": {}
 }, function(error, response, service) {
+  console.log("###SERVICE: " + JSON.stringify(service));
   console.log("###SERVICE ID: " + service.id);
   if (!error) {
     var intervalId = setInterval(function() {
