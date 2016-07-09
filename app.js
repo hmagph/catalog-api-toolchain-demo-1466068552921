@@ -60,7 +60,7 @@ request({
       console.log('REGISTERED: ' + response.statusCode, body);
       setInterval(function() {
         request({
-	      url: body.heartbeat,
+	      url: disco.url + '/api/v1/instances/' + body.id + '/heartbeat',
 	      method: 'PUT',
 	      headers: {
 	  	    'Authorization': 'Bearer ' + disco.auth_token 
