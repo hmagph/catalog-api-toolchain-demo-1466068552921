@@ -47,7 +47,6 @@ request({
     json: {
       'service_name': appEnv.name,
       //'tags': [],
-      //'status': 'UP',
       'ttl' : 300,
       'endpoint': {
       	'type': 'http',
@@ -57,66 +56,26 @@ request({
   }, function(error, response, body){
     if(error) {
       console.log(error);
+    } else if (response.statusCode == 201) { 
+      console.log('REGISTERED: ' + response.statusCode, body);
+      setInterval(function() {
+        request({
+	      url: body.heartbeat,
+	      method: 'PUT',
+	      headers: {
+	  	    'Authorization': 'Bearer ' + disco.auth_token 
+	      },
+	      json: {}
+        }, function(error2, response2, body2){
+          if (error2) {
+	        console.error("HEARTBEAT: ERROR", error2);
+	      } else {
+	        console.log("HEARTBEAT: " + response2.statusCode, body2);
+	      }
+        });
+      }, 5000); // heartbeat every 5s
     } else {
-      console.log("REGISTER: "+ response.statusCode, body);
-      if (response.statusCode == 201) {
-	    console.log('Registered', body);
-	    setInterval(function() {
-	      request({
-		    url: disco.url + '/api/v1/instances/'+body.id+'/heartbeat',
-		    method: 'PUT',
-		    headers: {
-		  	  'Authorization': 'Bearer ' + disco.auth_token 
-		    },
-		    json: {}
-	      }, function(error2, response2, body2){
-		    if(error2) {
-		      console.log(error2);
-		    } else {
-		      console.log("HEARTBEAT: "+ response2.statusCode, body2);
-		    }
-	      });
-	    }, 3000); // heartbeat every 3s
-      }
+      console.log("NOT REGISTERED: " + response.statusCode, body);
     }
-});
-
-
-//discovery = new ServiceDiscovery({
-//  name: 'ServiceDiscovery',
-//  auth_token: sdcreds.auth_token,
-//  url: sdcreds.url,
-//  version: 1
-//});
-//discovery.register(
-//  {
-//    service_name: appEnv.name,
-//    ttl: 60, // 60s
-//    endpoint: {
-//      type: 'http',
-//      value: appEnv.url
-//    },
-//    metadata: {}
-//  },
-//  function(err, response, body) {
-//  if (!err && response.statusCode === 201) {
-//    var id = body.id;
-//    console.log('Registered', body);
-//    setInterval(function() {
-//      discovery.renew(id, function(err, response) {
-//        if (!err && response.statusCode === 200) {
-//          console.log('HEARTBEAT OK');
-//        } else {
-//          console.log('HEARTBEAT ERROR');
-//        }
-//      });
-//    }, 3000); // 3s
-//  } else {
-//  	if (err) {
-//  		console.error(err);
-//  	} else {
-//  		console.log("FAIL: " + response.statusCode + response.statusMessage);
-//  		console.log(response.headers)
-//  	}
-//  }
-//});
+  }
+);
