@@ -35,6 +35,34 @@ app.delete('/items/:id', items.remove);
 app.listen(appEnv.port, appEnv.bind);
 console.log('App started on ' + appEnv.bind + ':' + appEnv.port);
 
+//Register in service discovery with heatbeat
+var discovery = new ServiceDiscovery({
+  name: 'myMicroservicesDiscovery',
+  auth_token: '<AUTH TOKEN>',
+  url: '<SERVICE DISCOVERY URL>',
+  version: 1
+});
+// register a service and send heartbeats 
+discovery.register({
+  "service_name": "users_api",
+  "ttl": 5,
+  "endpoint": {
+    "host": "https://api.users.coolapp.com",
+    "port": 443
+  },
+  "metadata": {}
+}, function(error, response, service) {
+  if (!error) {
+    var intervalId = setInterval(function() {
+      discovery.renew(service.id, function(error, response, service) {
+        if (error || response.statusCode !== 200) {
+          console.log('Could not send heartbeat');
+          clearInterval(intervalId);
+        }
+      });
+    }, 1000);
+  }
+});
 
 //Register in service discovery with heatbeat
 var disco = appEnv.getService("myMicroservicesDiscovery").credentials;
@@ -47,7 +75,7 @@ request({
     json: {
       'service_name': appEnv.name,
       //'tags': [],
-      'ttl' : 300,
+      'ttl' : 5, // ttl of 5s
       'endpoint': {
       	'type': 'http',
       	'value': appEnv.url
@@ -73,7 +101,7 @@ request({
 	        console.log("HEARTBEAT: " + response2.statusCode, body2);
 	      }
         });
-      }, 5000); // heartbeat every 5s
+      }, 1000); // heartbeat every 1s
     } else {
       console.log("NOT REGISTERED: " + response.statusCode, body);
     }
